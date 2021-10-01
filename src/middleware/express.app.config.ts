@@ -2,7 +2,7 @@
 
 import * as express from 'express';
 import cookieParser = require('cookie-parser');
-import bodyParser = require('body-parser');
+// import bodyParser = require('body-parser');
 import { SwaggerUI } from './swagger.ui';
 import { SwaggerRouter } from './swagger.router';
 import { SwaggerParameters } from './swagger.parameters';
@@ -27,9 +27,9 @@ export class ExpressAppConfig {
         const spec = fs.readFileSync(definitionPath, 'utf8');
         const swaggerDoc = jsyaml.safeLoad(spec);
 
-        this.app.use(bodyParser.urlencoded());
-        this.app.use(bodyParser.text());
-        this.app.use(bodyParser.json());
+        this.app.use(express.urlencoded({ extended: true }));
+        this.app.use(express.text());
+        this.app.use(express.json());
 
         this.app.use(this.configureLogger(appOptions.logging));
         this.app.use(express.json());
@@ -62,16 +62,16 @@ export class ExpressAppConfig {
 
     public configureLogger(loggerOptions) {
         let format = 'dev';
-        let options:{} = {};
+        let options: {} = {};
 
         if (loggerOptions != undefined) {
-            if(loggerOptions.format != undefined
-                && typeof loggerOptions.format === 'string'){
-                    format = loggerOptions.format;
+            if (loggerOptions.format != undefined
+                && typeof loggerOptions.format === 'string') {
+                format = loggerOptions.format;
             }
-    
-            if(loggerOptions.errorLimit != undefined
-                && (typeof loggerOptions.errorLimit === 'string' || typeof loggerOptions.errorLimit === 'number')){
+
+            if (loggerOptions.errorLimit != undefined
+                && (typeof loggerOptions.errorLimit === 'string' || typeof loggerOptions.errorLimit === 'number')) {
                 options['skip'] = function (req, res) { return res.statusCode < parseInt(loggerOptions.errorLimit); };
             }
         }

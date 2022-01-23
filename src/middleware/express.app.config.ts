@@ -2,7 +2,8 @@
 
 import * as express from 'express';
 import cookieParser = require('cookie-parser');
-// import bodyParser = require('body-parser');
+import bodyParser = require('body-parser');
+import cors = require('cors');
 import { SwaggerUI } from './swagger.ui';
 import { SwaggerRouter } from './swagger.router';
 import { SwaggerParameters } from './swagger.parameters';
@@ -22,14 +23,19 @@ export class ExpressAppConfig {
         this.definitionPath = definitionPath;
         this.routingOptions = appOptions.routing;
         this.setOpenApiValidatorOptions(definitionPath, appOptions);
-        this.app = express();
 
+				// Create new express app only if not passed by options
+        this.app = appOptions.app || express();
+
+    		this.app.use(cors(appOptions.cors));
+        
         const spec = fs.readFileSync(definitionPath, 'utf8');
         const swaggerDoc = jsyaml.safeLoad(spec);
 
-        this.app.use(express.urlencoded({ extended: true }));
-        this.app.use(express.text());
-        this.app.use(express.json());
+        this.app.use(bodyParser.urlencoded());
+        this.app.use(bodyParser.text());
+        this.app.use(bodyParser.json());
+        this.app.use(bodyParser.raw({ type: 'application/pdf' }));
 
         this.app.use(this.configureLogger(appOptions.logging));
         this.app.use(express.json());

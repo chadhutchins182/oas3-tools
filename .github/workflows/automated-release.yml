@@ -29,7 +29,6 @@ jobs:
           node-version: "17.x"
           registry-url: "https://npm.pkg.github.com"
       - run: npm ci
-      - run: npm run test
       - run: npm publish --access public --registry=https://npm.pkg.github.com --scope=@chadhutchins182
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

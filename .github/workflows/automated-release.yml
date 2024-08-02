@@ -23,11 +23,12 @@ jobs:
           fetch-depth: 0
 
       - name: Set RELEASE_VERSION
+        id: release_version
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Test RELEASE_VERSION
         run: |
-          echo $RELEASE_VERSION
+          echo Release ${{ steps.release_version.outputs.RELEASE_VERSION }}
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -59,7 +60,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: $RELEASE_VERSION
+          tag_name: ${{ steps.release_version.outputs.RELEASE_VERSION }}
           body: ${{ steps.github_release.outputs.changelog }}
-          name: Release $RELEASE_VERSION
+          name: Release ${{ steps.release_version.outputs.RELEASE_VERSION }}
           make_latest: true

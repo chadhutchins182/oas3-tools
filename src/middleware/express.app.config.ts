@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as OpenApiValidator from 'express-openapi-validator';
 import { Oas3AppOptions } from './oas3.options';
+import { OpenApiRequestHandler } from 'express-openapi-validator/dist/framework/types'
 
 export class ExpressAppConfig {
     private app: express.Application;
@@ -19,16 +20,16 @@ export class ExpressAppConfig {
     private definitionPath;
     private openApiValidatorOptions;
 
-    constructor(definitionPath: string, appOptions: Oas3AppOptions) {
+    constructor(definitionPath: string, appOptions: Oas3AppOptions, customMiddlewares?: OpenApiRequestHandler[]) {
         this.definitionPath = definitionPath;
         this.routingOptions = appOptions.routing;
         this.setOpenApiValidatorOptions(definitionPath, appOptions);
 
-				// Create new express app only if not passed by options
+        // Create new express app only if not passed by options
         this.app = appOptions.app || express();
 
-    		this.app.use(cors(appOptions.cors));
-        
+        this.app.use(cors(appOptions.cors));
+
         const spec = fs.readFileSync(definitionPath, 'utf8');
         const swaggerDoc = jsyaml.safeLoad(spec);
 
@@ -47,6 +48,8 @@ export class ExpressAppConfig {
 
         this.app.use(OpenApiValidator.middleware(this.openApiValidatorOptions));
         this.app.use(new SwaggerParameters().checkParameters());
+        // Bind custom middlewares which need access to the OpenApiRequest context before controllers initialization
+        (customMiddlewares || []).forEach(middleware => this.app.use(middleware))
         this.app.use(new SwaggerRouter().initialize(this.routingOptions));
 
         this.app.use(this.errorHandler);

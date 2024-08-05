@@ -41,7 +41,6 @@
     "dist"
   ],
   "dependencies": {
-    "@chadhutchins182/oas3-tools": "file:",
     "async": "^3.2.5",
     "body-parser": "1.20.2",
     "cookie-parser": "^1.4.6",

@@ -3,7 +3,7 @@
 var path = require('path');
 var http = require('http');
 
-var oas3Tools = require('oas3-tools');
+var oas3Tools = require('@chadhutchins182/oas3-tools');
 var serverPort = 8080;
 
 function validate(request, scopes, schema) {

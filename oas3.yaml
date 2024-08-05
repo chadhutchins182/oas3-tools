@@ -1,700 +1,974 @@
-openapi: 3.0.1
-servers: []
-info:
-  description: |
-    This is a sample Petstore server.  You can find
-    out more about Swagger at
-    [http://swagger.io](http://swagger.io) or on
-    [irc.freenode.net, #swagger](http://swagger.io/irc/).
-  version: "1.0.0"
-  title: Swagger Petstore
-  termsOfService: 'http://swagger.io/terms/'
+$id: 'https://spec.openapis.org/oas/3.1/schema/2022-10-07'
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+
+description: The description of OpenAPI v3.1.x documents without schema validation, as defined by https://spec.openapis.org/oas/v3.1.0
+
+type: object
+properties:
+  openapi:
+    type: string
+    pattern: '^3\.1\.\d+(-.+)?$'
+  info:
+    $ref: '#/$defs/info'
+  jsonSchemaDialect:
+    type: string
+    format: uri
+    default: 'https://spec.openapis.org/oas/3.1/dialect/base'
+  servers:
+    type: array
+    items:
+      $ref: '#/$defs/server'
+    default:
+      - url: /
+  paths:
+    $ref: '#/$defs/paths'
+  webhooks:
+    type: object
+    additionalProperties:
+      $ref: '#/$defs/path-item'
+  components:
+    $ref: '#/$defs/components'
+  security:
+    type: array
+    items:
+      $ref: '#/$defs/security-requirement'
+  tags:
+    type: array
+    items:
+      $ref: '#/$defs/tag'
+  externalDocs:
+    $ref: '#/$defs/external-documentation'
+required:
+  - openapi
+  - info
+anyOf:
+  - required:
+    - paths
+  - required:
+    - components
+  - required:
+    - webhooks
+$ref: '#/$defs/specification-extensions'
+unevaluatedProperties: false
+
+$defs:
+  info:
+    $comment: https://spec.openapis.org/oas/v3.1.0#info-object
+    type: object
+    properties:
+      title:
+        type: string
+      summary:
+        type: string
+      description:
+        type: string
+      termsOfService:
+        type: string
+        format: uri
+      contact:
+        $ref: '#/$defs/contact'
+      license:
+        $ref: '#/$defs/license'
+      version:
+        type: string
+    required:
+      - title
+      - version
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
   contact:
-    email: apiteam@swagger.io
+    $comment: https://spec.openapis.org/oas/v3.1.0#contact-object
+    type: object
+    properties:
+      name:
+        type: string
+      url:
+        type: string
+        format: uri
+      email:
+        type: string
+        format: email
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
   license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-tags:
-  - name: pet
-    description: Everything about your Pets
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: store
-    description: Access to Petstore orders
-  - name: user
-    description: Operations about user
-    externalDocs:
-      description: Find out more about our store
-      url: 'http://swagger.io'
-paths:
-  /pet:
-    post:
-      tags:
-        - pet
-      summary: Add a new pet to the store
-      operationId: addPet
+    $comment: https://spec.openapis.org/oas/v3.1.0#license-object
+    type: object
+    properties:
+      name:
+        type: string
+      identifier:
+        type: string
+      url:
+        type: string
+        format: uri
+    required:
+      - name
+    dependentSchemas:
+      identifier:
+        not:
+          required:
+            - url
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  server:
+    $comment: https://spec.openapis.org/oas/v3.1.0#server-object
+    type: object
+    properties:
+      url:
+        type: string
+      description:
+        type: string
+      variables:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/server-variable'
+    required:
+      - url
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  server-variable:
+    $comment: https://spec.openapis.org/oas/v3.1.0#server-variable-object
+    type: object
+    properties:
+      enum:
+        type: array
+        items:
+          type: string
+        minItems: 1
+      default:
+        type: string
+      description:
+        type: string
+    required:
+      - default
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  components:
+    $comment: https://spec.openapis.org/oas/v3.1.0#components-object
+    type: object
+    properties:
+      schemas:
+        type: object
+        additionalProperties:
+          $dynamicRef: '#meta'
       responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/response-or-reference'
+      parameters:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/parameter-or-reference'
+      examples:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/example-or-reference'
+      requestBodies:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/request-body-or-reference'
+      headers:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/header-or-reference'
+      securitySchemes:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/security-scheme-or-reference'
+      links:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/link-or-reference'
+      callbacks:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/callbacks-or-reference'
+      pathItems:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/path-item'
+    patternProperties:
+      '^(schemas|responses|parameters|examples|requestBodies|headers|securitySchemes|links|callbacks|pathItems)$':
+        $comment: Enumerating all of the property names in the regex above is necessary for unevaluatedProperties to work as expected
+        propertyNames:
+          pattern: '^[a-zA-Z0-9._-]+$'
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  paths:
+    $comment: https://spec.openapis.org/oas/v3.1.0#paths-object
+    type: object
+    patternProperties:
+      '^/':
+        $ref: '#/$defs/path-item'
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  path-item:
+    $comment: https://spec.openapis.org/oas/v3.1.0#path-item-object
+    type: object
+    properties:
+      $ref:
+        type: string
+        format: uri-reference
+      summary:
+        type: string
+      description:
+        type: string
+      servers:
+        type: array
+        items:
+          $ref: '#/$defs/server'
+      parameters:
+        type: array
+        items:
+          $ref: '#/$defs/parameter-or-reference'
+      get:
+        $ref: '#/$defs/operation'
+      put:
+        $ref: '#/$defs/operation'
+      post:
+        $ref: '#/$defs/operation'
+      delete:
+        $ref: '#/$defs/operation'
+      options:
+        $ref: '#/$defs/operation'
+      head:
+        $ref: '#/$defs/operation'
+      patch:
+        $ref: '#/$defs/operation'
+      trace:
+        $ref: '#/$defs/operation'
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  operation:
+    $comment: https://spec.openapis.org/oas/v3.1.0#operation-object
+    type: object
+    properties:
+      tags:
+        type: array
+        items:
+          type: string
+      summary:
+        type: string
+      description:
+        type: string
+      externalDocs:
+        $ref: '#/$defs/external-documentation'
+      operationId:
+        type: string
+      parameters:
+        type: array
+        items:
+          $ref: '#/$defs/parameter-or-reference'
       requestBody:
-        $ref: '#/components/requestBodies/Pet'
-    put:
-      tags:
-        - pet
-      summary: Update an existing pet
-      operationId: updatePet
+        $ref: '#/$defs/request-body-or-reference'
       responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-        '405':
-          description: Validation exception
+        $ref: '#/$defs/responses'
+      callbacks:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/callbacks-or-reference'
+      deprecated:
+        default: false
+        type: boolean
       security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      requestBody:
-        $ref: '#/components/requestBodies/Pet'
-  /pet/findByStatus:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by status
-      description: Multiple status values can be provided with comma separated strings
-      operationId: findPetsByStatus
-      parameters:
-        - name: status
-          in: query
-          description: Status values that need to be considered for filter
-          required: true
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-              enum:
-                - available
-                - pending
-                - sold
-              default: available
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid status value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  /pet/findByTags:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by tags
-      description: >-
-        Muliple tags can be provided with comma separated strings. Use\ \ tag1,
-        tag2, tag3 for testing.
-      operationId: findPetsByTags
-      parameters:
-        - name: tags
-          in: query
-          description: Tags to filter by
-          required: true
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid tag value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      deprecated: true
-  '/pet/{petId}':
-    get:
-      tags:
-        - pet
-      summary: Find pet by ID
-      description: Returns a single pet
-      operationId: getPetById
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to return
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-      security:
-        - api_key: []
-    post:
-      tags:
-        - pet
-      summary: Updates a pet in the store with form data
-      operationId: updatePetWithForm
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                name:
-                  description: Updated name of the pet
-                  type: string
-                status:
-                  description: Updated status of the pet
-                  type: string
-    delete:
-      tags:
-        - pet
-      summary: Deletes a pet
-      operationId: deletePet
-      parameters:
-        - name: api_key
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: petId
-          in: path
-          description: Pet id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  '/pet/{petId}/uploadImage':
-    post:
-      tags:
-        - pet
-      summary: uploads an image
-      operationId: uploadFile
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to update
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              format: binary
-  /store/inventory:
-    get:
-      tags:
-        - store
-      summary: Returns pet inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: integer
-                  format: int32
-      security:
-        - api_key: []
-  /store/order:
-    post:
-      tags:
-        - store
-      summary: Place an order for a pet
-      operationId: placeOrder
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '400':
-          description: Invalid Order
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-        description: order placed for purchasing the pet
-        required: true
-  '/store/order/{orderId}':
-    get:
-      tags:
-        - store
-      summary: Find purchase order by ID
-      description: >-
-        For valid response try integer IDs with value >= 1 and <= 10.\ \ Other
-        values will generated exceptions
-      operationId: getOrderById
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of pet that needs to be fetched
-          required: true
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
-            maximum: 10
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-    delete:
-      tags:
-        - store
-      summary: Delete purchase order by ID
-      description: >-
-        For valid response try integer IDs with positive integer value.\ \
-        Negative or non-integer values will generate API errors
-      operationId: deleteOrder
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of the order that needs to be deleted
-          required: true
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-  /user:
-    post:
-      tags:
-        - user
-      summary: Create user
-      description: This can only be done by the logged in user.
-      operationId: createUser
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-        description: Created user object
-        required: true
-  /user/createWithArray:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      operationId: createUsersWithArrayInput
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        $ref: '#/components/requestBodies/UserArray'
-  /user/createWithList:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      operationId: createUsersWithListInput
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        $ref: '#/components/requestBodies/UserArray'
-  /user/login:
-    get:
-      tags:
-        - user
-      summary: Logs user into the system
-      operationId: loginUser
-      parameters:
-        - name: username
-          in: query
-          description: The user name for login
-          required: true
-          schema:
-            type: string
-        - name: password
-          in: query
-          description: The password for login in clear text
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              description: date in UTC when token expires
-              schema:
-                type: string
-                format: date-time
-          content:
-            application/json:
-              schema:
-                type: string
-            application/xml:
-              schema:
-                type: string
-        '400':
-          description: Invalid username/password supplied
-  /user/logout:
-    get:
-      tags:
-        - user
-      summary: Logs out current logged in user session
-      operationId: logoutUser
-      responses:
-        default:
-          description: successful operation
-  '/user/{username}':
-    get:
-      tags:
-        - user
-      summary: Get user by user name
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be fetched. Use user1 for testing.
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-    put:
-      tags:
-        - user
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      parameters:
-        - name: username
-          in: path
-          description: name that need to be updated
-          required: true
-          schema:
-            type: string
-      responses:
-        '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-        description: Updated user object
-        required: true
-    delete:
-      tags:
-        - user
-      summary: Delete user
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be deleted
-          required: true
-          schema:
-            type: string
-      responses:
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-  /test:
-    get:
-      security:
-      - bearer: []
-      operationId: testMethod
-      responses:
-        200:
-          description: peticion realizada con exito
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Test'
-externalDocs:
-  description: Find out more about Swagger
-  url: 'http://swagger.io'
-components:
-  schemas:
-    Order:
-      type: object
+        type: array
+        items:
+          $ref: '#/$defs/security-requirement'
+      servers:
+        type: array
+        items:
+          $ref: '#/$defs/server'
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  external-documentation:
+    $comment: https://spec.openapis.org/oas/v3.1.0#external-documentation-object
+    type: object
+    properties:
+      description:
+        type: string
+      url:
+        type: string
+        format: uri
+    required:
+      - url
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  parameter:
+    $comment: https://spec.openapis.org/oas/v3.1.0#parameter-object
+    type: object
+    properties:
+      name:
+        type: string
+      in:
+        enum:
+          - query
+          - header
+          - path
+          - cookie
+      description:
+        type: string
+      required:
+        default: false
+        type: boolean
+      deprecated:
+        default: false
+        type: boolean
+      schema:
+        $dynamicRef: '#meta'
+      content:
+        $ref: '#/$defs/content'
+        minProperties: 1
+        maxProperties: 1
+    required:
+      - name
+      - in
+    oneOf:
+      - required:
+        - schema
+      - required:
+        - content
+    if:
       properties:
-        id:
-          type: integer
-          format: int64
-        petId:
-          type: integer
-          format: int64
-        quantity:
-          type: integer
-          format: int32
-        shipDate:
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          enum:
-            - placed
-            - approved
-            - delivered
-        complete:
-          type: boolean
+        in:
+          const: query
+      required:
+        - in
+    then:
+      properties:
+        allowEmptyValue:
           default: false
-      xml:
-        name: Order
-    Category:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      xml:
-        name: Category
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        username:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        email:
-          type: string
-        password:
-          type: string
-        phone:
-          type: string
-        userStatus:
-          type: integer
-          format: int32
-          description: User Status
-      xml:
-        name: User
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      xml:
-        name: Tag
-    Pet:
+          type: boolean
+    dependentSchemas:
+      schema:
+        properties:
+          style:
+            type: string
+          explode:
+            type: boolean
+        allOf:
+          - $ref: '#/$defs/examples'
+          - $ref: '#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-path'
+          - $ref: '#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-header'
+          - $ref: '#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-query'
+          - $ref: '#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-cookie'
+          - $ref: '#/$defs/styles-for-form'
+
+        $defs:
+          styles-for-path:
+            if:
+              properties:
+                in:
+                  const: path
+              required:
+                - in
+            then:
+              properties:
+                style:
+                  default: simple
+                  enum:
+                    - matrix
+                    - label
+                    - simple
+                required:
+                  const: true
+              required:
+                - required
+
+          styles-for-header:
+            if:
+              properties:
+                in:
+                  const: header
+              required:
+                - in
+            then:
+              properties:
+                style:
+                  default: simple
+                  const: simple
+
+          styles-for-query:
+            if:
+              properties:
+                in:
+                  const: query
+              required:
+                - in
+            then:
+              properties:
+                style:
+                  default: form
+                  enum:
+                    - form
+                    - spaceDelimited
+                    - pipeDelimited
+                    - deepObject
+                allowReserved:
+                  default: false
+                  type: boolean
+
+          styles-for-cookie:
+            if:
+              properties:
+                in:
+                  const: cookie
+              required:
+                - in
+            then:
+              properties:
+                style:
+                  default: form
+                  const: form
+
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  parameter-or-reference:
+    if:
       type: object
       required:
-        - name
-        - photoUrls
-      properties:
-        id:
-          type: integer
-          format: int64
-        category:
-          $ref: '#/components/schemas/Category'
-        name:
-          type: string
-          example: doggie
-        photoUrls:
-          type: array
-          xml:
-            name: photoUrl
-            wrapped: true
-          items:
-            type: string
-        tags:
-          type: array
-          xml:
-            name: tag
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Tag'
-        status:
-          type: string
-          description: pet status in the store
-          enum:
-            - available
-            - pending
-            - sold
-      xml:
-        name: Pet
-    ApiResponse:
+        - $ref
+    then:
+      $ref: '#/$defs/reference'
+    else:
+      $ref: '#/$defs/parameter'
+
+  request-body:
+    $comment: https://spec.openapis.org/oas/v3.1.0#request-body-object
+    type: object
+    properties:
+      description:
+        type: string
+      content:
+        $ref: '#/$defs/content'
+      required:
+        default: false
+        type: boolean
+    required:
+      - content
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  request-body-or-reference:
+    if:
       type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        type:
-          type: string
-        message:
-          type: string
-    Test:
-      type: string
-      example: ""
-  requestBodies:
-    Pet:
+      required:
+        - $ref
+    then:
+      $ref: '#/$defs/reference'
+    else:
+      $ref: '#/$defs/request-body'
+
+  content:
+    $comment: https://spec.openapis.org/oas/v3.1.0#fixed-fields-10
+    type: object
+    additionalProperties:
+      $ref: '#/$defs/media-type'
+    propertyNames:
+      format: media-range
+
+  media-type:
+    $comment: https://spec.openapis.org/oas/v3.1.0#media-type-object
+    type: object
+    properties:
+      schema:
+        $dynamicRef: '#meta'
+      encoding:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/encoding'
+    allOf:
+      - $ref: '#/$defs/specification-extensions'
+      - $ref: '#/$defs/examples'
+    unevaluatedProperties: false
+
+  encoding:
+    $comment: https://spec.openapis.org/oas/v3.1.0#encoding-object
+    type: object
+    properties:
+      contentType:
+        type: string
+        format: media-range
+      headers:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/header-or-reference'
+      style:
+        default: form
+        enum:
+          - form
+          - spaceDelimited
+          - pipeDelimited
+          - deepObject
+      explode:
+        type: boolean
+      allowReserved:
+        default: false
+        type: boolean
+    allOf:
+      - $ref: '#/$defs/specification-extensions'
+      - $ref: '#/$defs/styles-for-form'
+    unevaluatedProperties: false
+
+  responses:
+    $comment: https://spec.openapis.org/oas/v3.1.0#responses-object
+    type: object
+    properties:
+      default:
+        $ref: '#/$defs/response-or-reference'
+    patternProperties:
+      '^[1-5](?:[0-9]{2}|XX)$':
+        $ref: '#/$defs/response-or-reference'
+    minProperties: 1
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+    if:
+      $comment: either default, or at least one response code property must exist
+      patternProperties:
+        '^[1-5](?:[0-9]{2}|XX)$': false
+    then:
+      required: [default]
+
+  response:
+    $comment: https://spec.openapis.org/oas/v3.1.0#response-object
+    type: object
+    properties:
+      description:
+        type: string
+      headers:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/header-or-reference'
       content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Pet'
-        application/xml:
-          schema:
-            $ref: '#/components/schemas/Pet'
-      description: Pet object that needs to be added to the store
-      required: true
-    UserArray:
+        $ref: '#/$defs/content'
+      links:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/link-or-reference'
+    required:
+      - description
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  response-or-reference:
+    if:
+      type: object
+      required:
+        - $ref
+    then:
+      $ref: '#/$defs/reference'
+    else:
+      $ref: '#/$defs/response'
+
+  callbacks:
+    $comment: https://spec.openapis.org/oas/v3.1.0#callback-object
+    type: object
+    $ref: '#/$defs/specification-extensions'
+    additionalProperties:
+      $ref: '#/$defs/path-item'
+
+  callbacks-or-reference:
+    if:
+      type: object
+      required:
+        - $ref
+    then:
+      $ref: '#/$defs/reference'
+    else:
+      $ref: '#/$defs/callbacks'
+
+  example:
+    $comment: https://spec.openapis.org/oas/v3.1.0#example-object
+    type: object
+    properties:
+      summary:
+        type: string
+      description:
+        type: string
+      value: true
+      externalValue:
+        type: string
+        format: uri
+    not:
+      required:
+      - value
+      - externalValue
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  example-or-reference:
+    if:
+      type: object
+      required:
+        - $ref
+    then:
+      $ref: '#/$defs/reference'
+    else:
+      $ref: '#/$defs/example'
+
+  link:
+    $comment: https://spec.openapis.org/oas/v3.1.0#link-object
+    type: object
+    properties:
+      operationRef:
+        type: string
+        format: uri-reference
+      operationId:
+        type: string
+      parameters:
+        $ref: '#/$defs/map-of-strings'
+      requestBody: true
+      description:
+        type: string
+      body:
+        $ref: '#/$defs/server'
+    oneOf:
+      - required:
+        - operationRef
+      - required:
+        - operationId
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  link-or-reference:
+    if:
+      type: object
+      required:
+        - $ref
+    then:
+      $ref: '#/$defs/reference'
+    else:
+      $ref: '#/$defs/link'
+
+  header:
+    $comment: https://spec.openapis.org/oas/v3.1.0#header-object
+    type: object
+    properties:
+      description:
+        type: string
+      required:
+        default: false
+        type: boolean
+      deprecated:
+        default: false
+        type: boolean
+      schema:
+        $dynamicRef: '#meta'
       content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/User'
-      description: List of user object
-      required: true
-  securitySchemes:
-    bearer:
-      type: http
-      scheme: bearer
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: 'http://petstore.swagger.io/oauth/dialog'
+        $ref: '#/$defs/content'
+        minProperties: 1
+        maxProperties: 1
+    oneOf:
+      - required:
+        - schema
+      - required:
+        - content
+    dependentSchemas:
+      schema:
+        properties:
+          style:
+            default: simple
+            const: simple
+          explode:
+            default: false
+            type: boolean
+        $ref: '#/$defs/examples'
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  header-or-reference:
+    if:
+      type: object
+      required:
+        - $ref
+    then:
+      $ref: '#/$defs/reference'
+    else:
+      $ref: '#/$defs/header'
+
+  tag:
+    $comment: https://spec.openapis.org/oas/v3.1.0#tag-object
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      externalDocs:
+        $ref: '#/$defs/external-documentation'
+    required:
+      - name
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+  reference:
+    $comment: https://spec.openapis.org/oas/v3.1.0#reference-object
+    type: object
+    properties:
+      $ref:
+        type: string
+        format: uri-reference
+      summary:
+        type: string
+      description:
+        type: string
+
+  schema:
+    $comment: https://spec.openapis.org/oas/v3.1.0#schema-object
+    $dynamicAnchor: meta
+    type:
+      - object
+      - boolean
+
+  security-scheme:
+    $comment: https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+    type: object
+    properties:
+      type:
+        enum:
+          - apiKey
+          - http
+          - mutualTLS
+          - oauth2
+          - openIdConnect
+      description:
+        type: string
+    required:
+      - type
+    allOf:
+      - $ref: '#/$defs/specification-extensions'
+      - $ref: '#/$defs/security-scheme/$defs/type-apikey'
+      - $ref: '#/$defs/security-scheme/$defs/type-http'
+      - $ref: '#/$defs/security-scheme/$defs/type-http-bearer'
+      - $ref: '#/$defs/security-scheme/$defs/type-oauth2'
+      - $ref: '#/$defs/security-scheme/$defs/type-oidc'
+    unevaluatedProperties: false
+
+    $defs:
+      type-apikey:
+        if:
+          properties:
+            type:
+              const: apiKey
+          required:
+            - type
+        then:
+          properties:
+            name:
+              type: string
+            in:
+              enum:
+                - query
+                - header
+                - cookie
+          required:
+            - name
+            - in
+
+      type-http:
+        if:
+          properties:
+            type:
+              const: http
+          required:
+            - type
+        then:
+          properties:
+            scheme:
+              type: string
+          required:
+            - scheme
+
+      type-http-bearer:
+        if:
+          properties:
+            type:
+              const: http
+            scheme:
+              type: string
+              pattern: ^[Bb][Ee][Aa][Rr][Ee][Rr]$
+          required:
+            - type
+            - scheme
+        then:
+          properties:
+            bearerFormat:
+              type: string
+
+      type-oauth2:
+        if:
+          properties:
+            type:
+              const: oauth2
+          required:
+            - type
+        then:
+          properties:
+            flows:
+              $ref: '#/$defs/oauth-flows'
+          required:
+            - flows
+
+      type-oidc:
+        if:
+          properties:
+            type:
+              const: openIdConnect
+          required:
+            - type
+        then:
+          properties:
+            openIdConnectUrl:
+              type: string
+              format: uri
+          required:
+            - openIdConnectUrl
+
+  security-scheme-or-reference:
+    if:
+      type: object
+      required:
+        - $ref
+    then:
+      $ref: '#/$defs/reference'
+    else:
+      $ref: '#/$defs/security-scheme'
+
+  oauth-flows:
+    type: object
+    properties:
+      implicit:
+        $ref: '#/$defs/oauth-flows/$defs/implicit'
+      password:
+        $ref: '#/$defs/oauth-flows/$defs/password'
+      clientCredentials:
+        $ref: '#/$defs/oauth-flows/$defs/client-credentials'
+      authorizationCode:
+        $ref: '#/$defs/oauth-flows/$defs/authorization-code'
+    $ref: '#/$defs/specification-extensions'
+    unevaluatedProperties: false
+
+    $defs:
+      implicit:
+        type: object
+        properties:
+          authorizationUrl:
+            type: string
+            format: uri
+          refreshUrl:
+            type: string
+            format: uri
           scopes:
-            'write:pets': modify pets in your account
-            'read:pets': read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
+            $ref: '#/$defs/map-of-strings'
+        required:
+          - authorizationUrl
+          - scopes
+        $ref: '#/$defs/specification-extensions'
+        unevaluatedProperties: false
+
+      password:
+        type: object
+        properties:
+          tokenUrl:
+            type: string
+            format: uri
+          refreshUrl:
+            type: string
+            format: uri
+          scopes:
+            $ref: '#/$defs/map-of-strings'
+        required:
+          - tokenUrl
+          - scopes
+        $ref: '#/$defs/specification-extensions'
+        unevaluatedProperties: false
+
+      client-credentials:
+        type: object
+        properties:
+          tokenUrl:
+            type: string
+            format: uri
+          refreshUrl:
+            type: string
+            format: uri
+          scopes:
+            $ref: '#/$defs/map-of-strings'
+        required:
+          - tokenUrl
+          - scopes
+        $ref: '#/$defs/specification-extensions'
+        unevaluatedProperties: false
+
+      authorization-code:
+        type: object
+        properties:
+          authorizationUrl:
+            type: string
+            format: uri
+          tokenUrl:
+            type: string
+            format: uri
+          refreshUrl:
+            type: string
+            format: uri
+          scopes:
+            $ref: '#/$defs/map-of-strings'
+        required:
+          - authorizationUrl
+          - tokenUrl
+          - scopes
+        $ref: '#/$defs/specification-extensions'
+        unevaluatedProperties: false
+
+  security-requirement:
+    $comment: https://spec.openapis.org/oas/v3.1.0#security-requirement-object
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: string
+
+  specification-extensions:
+    $comment: https://spec.openapis.org/oas/v3.1.0#specification-extensions
+    patternProperties:
+      '^x-': true
+
+  examples:
+    properties:
+      example: true
+      examples:
+        type: object
+        additionalProperties:
+          $ref: '#/$defs/example-or-reference'
+
+  map-of-strings:
+    type: object
+    additionalProperties:
+      type: string
+
+  styles-for-form:
+    if:
+      properties:
+        style:
+          const: form
+      required:
+        - style
+    then:
+      properties:
+        explode:
+          default: true
+    else:
+      properties:
+        explode:
+          default: false
